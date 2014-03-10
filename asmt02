@@ -1,0 +1,48 @@
+#!/bin/bash
+# printf 3"DATE/TIME\t#PROCS\t#USERS\t#REMOTE\tXUSER?\tLOADAV\n" tee -a logfile
+iteration= 
+ps_total=0
+is_used=
+pct_in_use=
+
+# loop
+while sleep 5 ; do
+
+#log keeps track of these variables
+
+	time_stamp=$(date +%m%d%H%M)
+	nbr_of_ps=$(ps af | wc -l)
+	nbr_of_users=$(who | sort | uniq -w8 | wc -l) 
+	nbr_of_remote=$(who | sort | uniq -w8 | grep -v '147.144' | wc -l)
+	nbr_of_Xusers=$(who|sort|uniq -w8|grep X|wc -l)
+	load_15m=$(uptime | cut -d, -f4)
+
+# Math stuff
+	((iteration++))
+	ps_total=$(($ps_total+$nbr_of_ps))
+
+	if [ $nbr_of_users -ge 0 ]
+	 	then
+		((is_used++))
+		fi
+	
+
+
+# Add line of information to log
+# DATE/TIME	#PROCS	#USERS	#REMOTE	XUSER?	LOADAV
+	printf "$time_stamp\t$nbr_of_ps\t$nbr_of_users\t$nbr_of_remote\t$nbr_of_Xusers\t$load_15m\n" | tee -a logfile
+	echo $is_used
+# Math and present summary information
+# need a variable to get percentages
+# echo "SUMMARY: XX% of samples found users logged in"
+# echo "ab AVERAGE of 237 processes were running over $iteration measurements"	
+
+prct_used=$(echo "scale=2; $is_used*100/$iteration"| bc)
+avg_ps_level=$(echo "scale=4; $ps_total/$iteration"| bc)
+
+echo "SUMMARY: $prct_used percent of samples found users logged on"
+echo "AVERAGE of $avg_ps_level processes were running over $iteration measurements"
+
+done
+# 09252020: SUMMARY: 100% of samples found users logged in.
+# 09252020: an AVERAGE of 237 processes were running over 5 measurements
