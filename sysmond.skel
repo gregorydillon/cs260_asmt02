@@ -1,0 +1,112 @@
+#!/bin/bash
+#
+# sysmond - bash shell script that fakes a daemon.
+#   the skeleton is given to you. It is not documented
+#  YOU MUST ADD THE DOCUMENTATION FOR SYSMOND HERE.
+#
+#
+# CHANGE this for testing. The standard place for sysmond's
+# configuration file is in /etc/sysconfig
+#
+configfile=~/config/sysmond
+#
+# these are the default values for the parameters in the config file
+#
+interval=10
+logfile=/spare/tmp/sysmond.log
+append=yes
+#
+errors_seen=no
+error() {
+    # error function. simply outputs an error message to the logfile.
+    # this function SETS THE GLOBAL VARIABLE errors_seen
+    # to indicate whether errors have been seen or not.
+
+    echo "ERROR: $*" >> "$logfile"
+    errors_seen=yes
+}
+
+read_config() {
+	# read_config path-to-configfile
+	#
+    # reads the config file and SETS THREE GLOBAL VARIABLES
+    # 	logfile - set to the path of the output log file
+    # 	append  - yes or no depending on whether the log file should be
+    #    	overwritten (no) or appended to (yes)
+    # 	interval = the number of minutes between reports
+    # these variables should already have default values
+	#
+	# read_config calls the function error to report errors
+	#	some errors cause an immediate return with a failure (1) status
+	# at the end of the function, it checks the global variable
+	#   errors_seen (set by the error function) and sets its return
+	#   status accordingly (0 if no errors were encountered, 1 otherwise)
+	#
+    [ $# -ne 1 ] && { error "illegal call to read_config" ; return 1; }
+    [ ! -f "$1" -o ! -r "$1" ] && { error "$1 not a readable file" ; return 1; }
+    local line cfile
+    cfile="$1"
+    OIFS="$IFS"
+    while read line; do
+        # ignore empty lines and comments
+        [ -z "$line" -o "${line:0:1}" = "#" ] && continue
+
+        # chop the line on =
+        IFS="="
+        set -- $line
+        IFS="$OIFS"
+
+        # look for keywords and process them
+        case "$1" in 
+            logfile) 
+                [ -n "$2" ] && logfile="$2" || error \
+                "Configfile=$cfile - no value for logfile: line='$line'" 
+                    ;;
+            append)    
+                [ "$2" = yes -o "$2" = no ] && append=$2 || error \
+                "Configfile=$cfile - illegal value for append: line='$line'"
+                    ;;
+            interval)    
+                echo "$2" | grep -qE "^[[:digit:]]+$" && interval=$2 || error \
+                "Configfile=$cfile - illegal value for interval: line='$line'"
+                    ;;
+            *)        
+                error "Configfile=$cfile - illegal line in $cfile:'$line'"
+                    ;;
+        esac
+    done < "$cfile"
+
+    # if there were any syntax errors, return failure
+    [ $errors_seen = yes ] && return 1
+    return 0
+}
+
+# read the config file and check the exit status
+if ! read_config "$configfile" ; then
+    # config file had errors or could not be read. 
+    # you must decide if this is a fatal error
+    # for now, this clause is just a null statement (:)
+    :
+fi
+
+# remove the log file if indicated. 
+
+# one last function to help you.
+log() {
+    echo -e "$*" >> "$logfile"
+}
+
+# add a function here to invoke to do the summary
+# add a trap to run your summary function when you get the TERM
+# use a few global variables:
+#  - a counter of the number of iterations
+#  - a total of the number of processes seen in all measurements
+#  - a counter of the number of measurements that saw at least one user logged in
+
+# to start, write the start message and header to $logfile
+
+# now loop forever doing one measurement each $interval minutes
+# and writing the info to $logfile
+# dont forget to update your running totals!
+# have fun!
+

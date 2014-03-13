@@ -1,0 +1,9 @@
+Sysmond started on milhouse.acrc.ccsf.edu at 20:15 Sep 25 2013. interval = 1 minutes
+DATE/TIME	#PROCS	#USERS	#REMOTE	XUSER?	LOADAV
+09252015	234	1	0	YES	 0.00
+09252016	236	1	0	YES	 0.00
+09252017	240	1	1	YES	 0.02
+09252018	238	1	1	YES	 0.08
+09252019	239	1	1	YES	 0.12
+09252020: SUMMARY: 100% of samples found users logged in. 
+09252020: an AVERAGE of 237 processes were running over 5 measurements

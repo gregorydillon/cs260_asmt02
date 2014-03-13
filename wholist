@@ -1,0 +1,26 @@
+#!/bin/bash
+# printf 3"DATE/TIME\t#PROCS\t#USERS\t#REMOTE\tXUSER?\tLOADAV\n" tee -a logfile
+iteration= 
+
+while sleep 100  ; do
+
+#log keeps track of these variables
+	
+	users=$(who | sort)
+	
+# Math stuff
+	((iteration++))
+
+# Add line of information to log
+# DATE/TIME	#PROCS	#USERS	#REMOTE	XUSER?	LOADAV
+	printf "$users/n" | tee -a logfile
+	echo "iteration = $iteration"
+# Math and present summary information
+# need a variable to get percentages
+# echo "SUMMARY: XX% of samples found users logged in"
+# echo "ab AVERAGE of 237 processes were running over $iteration measurements"	
+
+
+done
+# 09252020: SUMMARY: 100% of samples found users logged in.
+# 09252020: an AVERAGE of 237 processes were running over 5 measurements
